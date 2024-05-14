@@ -1,105 +1,67 @@
+import React, { useState, useEffect } from 'react';
 import { View, Text, ImageBackground, FlatList, StyleSheet, Image, TouchableOpacity, Platform, Linking } from 'react-native';
-import React, { useState,useEffect } from 'react';
-
-import firebase from '../../Config';
-import { DataSnapshot, set } from 'firebase/database';
 import { Button, Dialog } from 'react-native-paper';
+import firebase from '../../Config';
+
 const database = firebase.database();
 
-
-
-
 export default function Users(props) {
-  const currentid=props.route.params.currentid;
-  const [data,setdata] = useState([]);
-  const [isDialogVisible, setIsDialogVisible] = useState(false)
-  const [itemPressed,setItemPressed]=useState({})
+  const currentid = props.route.params.currentid;
+  const [data, setdata] = useState([]);
+  const [isDialogVisible, setIsDialogVisible] = useState(false);
+  const [itemPressed, setItemPressed] = useState({});
+
   useEffect(() => {
-    const ref_users=database.ref("users");
-    //datasnapchot reference des copies
-    ref_users.on("value",(datasnapshot)=>{
-      let d =[];
+    const ref_users = database.ref("users");
+
+    ref_users.on("value", (datasnapshot) => {
+      let d = [];
       datasnapshot.forEach((one_user) => {
-      
-        if (one_user.val().Id!= currentid)  d.push(one_user.val());
-       
+        if (one_user.val().Id != currentid) d.push(one_user.val());
+      });
+      setdata(d);
     });
-    setdata(d);
-    console.log(data);
-  });
-  
+
     return () => {
       ref_users.off();
     }
   }, []);
 
-
   const closeDialog = () => {
     setIsDialogVisible(false);
   };
-  
- 
-  
-  
 
   return (
     <ImageBackground
-      source={require("../../assets/image1.jpg")}
-      style={styles.container} 
+      source={require("../../assets/back.jpg")}
+      style={styles.container}
     >
-      <Text
-        style={{
-          textAlign: "center",
-          fontSize: 28,
-          fontWeight: "bold",
-          color: "green",
-          marginTop: 20
-        }}
-      >
-        Users
-      </Text>
+      <Text style={styles.heading}>Users</Text>
       <FlatList
         data={data}
-        renderItem={({ item }) => {
-          return (
-            <View
-              style={{
-                flexDirection: "row",
-                backgroundColor: "#f5f5f5",
-                elevation: 5,
-                margin: 10,
-                borderRadius: 5,
-                alignItems: 'center',
-                height: 100, 
-              }}
-            >
-              <TouchableOpacity onPress={()=>{
-                setItemPressed(item)
-                setIsDialogVisible(true);
-              }}
-              >
-             <Image style={{ width: 50, height: 50, marginRight: 20 }} source={require("../../assets/profil.png")} />
-
-
-              </TouchableOpacity>
-              <View>
-                <Text>{item.Nom}</Text>
-                
-                <Text>{item.Pseudo}</Text>
-                <Text>{item.Telephone}</Text>
-              </View>
-
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.userCard}
+            onPress={() => {
+              setItemPressed(item);
+              setIsDialogVisible(true);
+            }}
+          >
+            <Image style={styles.userImage} source={require("../../assets/profil.png")} />
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>{item.Nom}</Text>
+              <Text style={styles.userDetail}>{item.Pseudo}</Text>
+              <Text style={styles.userDetail}>{item.Telephone}</Text>
             </View>
-          );
-        }}
-        style={{
-          margin: 5,
-        }}
+          </TouchableOpacity>
+        )}
+        keyExtractor={(item, index) => index.toString()}
+        style={styles.flatList}
       />
       <Dialog visible={isDialogVisible}>
-        <Dialog.Title>Details et options</Dialog.Title>
+        <Dialog.Title>Details and  options</Dialog.Title>
         <Dialog.Content>
-          <Image style={{ width: 100, height: 100, marginRight: 20 }} source={itemPressed.Url ? { uri: itemPressed.Url } : require("../../assets/profil.png")} />
+          <Image style={styles.dialogImage} source={itemPressed.Url ? { uri: itemPressed.Url } : require("../../assets/profil.png")} />
           <Text>{itemPressed.Nom + " " + itemPressed.Prenom + itemPressed.Telephone + itemPressed.Pseudo}</Text>
         </Dialog.Content>
         <Dialog.Actions>
@@ -115,5 +77,51 @@ export default function Users(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  heading: {
+    textAlign: "center",
+    fontSize: 28,
+    
+   
+    marginTop: 20,
+    
+    fontFamily: "serif",
+    color: "#4682b4",
+    fontWeight: "bold",
+  },
+  flatList: {
+    margin: 5,
+  },
+  userCard: {
+    flexDirection: "row",
+    backgroundColor: "#f5f5f5",
+    elevation: 5,
+    margin: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    height: 100,
+    paddingHorizontal: 10,
+  },
+  userImage: {
+    width: 50,
+    height: 50,
+    marginRight: 20
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  userDetail: {
+    fontSize: 14,
+    color: 'gray',
+  },
+  dialogImage: {
+    width: 100,
+    height: 100,
+    marginRight: 20,
   },
 });

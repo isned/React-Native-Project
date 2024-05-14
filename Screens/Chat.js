@@ -3,119 +3,83 @@ import { FlatList, ImageBackground, StyleSheet, Text, View } from "react-native"
 import { Button, TextInput } from "react-native-paper";
 import firebase from "../Config";
 
+
+
+
 const database = firebase.database();
 
 export default function Chat(props) {
-  const currentid = props.route.params.currentid;
-  const secondid = props.route.params.secondid;
-  const [data, setData] = useState([]);
+  const { currentid, secondid } = props.route.params;
+//les use State faire le refresh comme le cas de tableau d 
+  const [data, setdata] = useState([]);
   const [msg, setMsg] = useState("");
-  const [istypingVisible, setIstypingVisible] = useState(false);
 
-  // Define ref_la_disc within the component
-  const iddisc = currentid > secondid ? currentid + secondid : secondid + currentid;
-  const ref_discussion = database.ref("discussion");
-  const ref_la_disc = ref_discussion.child(iddisc);
+   //telecharger le contenu d'une refererence
 
   useEffect(() => {
-    ref_la_disc.on("value", (DataSnapshot) => {
+    const ref_discussion = database.ref("discussion");
+    const iddisc = currentid > secondid ? currentid + secondid : secondid + currentid;
+    const ref_la_disc = ref_discussion.child(iddisc);
+
+  
+    const onDataUpdate = (snapshot) => {
       let d = [];
-      DataSnapshot.forEach((un_msg) => {
-        d.push(un_msg.val());
+      snapshot.forEach((childSnapshot) => {
+        d.push(childSnapshot.val());
       });
-      setData(d);
-    });
+      setdata(d);
+    };
+
+    ref_la_disc.on("value", onDataUpdate);
 
     return () => {
-      ref_la_disc.off();
+      ref_la_disc.off("value", onDataUpdate);
     };
-  }, []);
+  }, [currentid, secondid]);
 
-  const ref_typing = ref_la_disc.child(secondid + "isTyping");
-  useEffect(() => {
-    ref_typing.on("value", (snapshot) => {
-      setIstypingVisible(snapshot.val());
+  const sendMessage = () => {
+    const iddisc = currentid > secondid ? currentid + secondid : secondid + currentid;
+    const ref_discussion = database.ref("discussion");
+    const ref_la_disc = ref_discussion.child(iddisc);
+    const key = ref_la_disc.push().key;
+    const ref_un_msg = ref_la_disc.child(key);
+    ref_un_msg.set({
+      Time: new Date().toLocaleString(),
+      Message: msg,
+      Sender: currentid,
+      Receiver: secondid,
     });
+  
 
-    return () => {
-      ref_typing.off();
-    };
-  }, []);
+    setMsg("");
+  };
 
   return (
-    <ImageBackground
-      style={styles.container}
-      source={require("../assets/image1.jpg")}
-    >
-      <View style={{ flexDirection: "row" }}>
+    <ImageBackground style={styles.container} source={require("../assets/back.jpg")}>
+      <FlatList
+      //ici on va afficher le tableau d dans la liste FlatList qui est traité dans le useEffect la haut qui contient tous les chats
+        data={data}
+        renderItem={({ item }) => (
+          <View style={[styles.messageContainer, currentid === item.Sender ? styles.userMessage : styles.otherMessage]}>
+            <Text style={styles.messageText}>{item.Message}</Text>
+            <Text style={styles.messageTime}>{item.Time}</Text>
+          </View>
+        )}
+        style={styles.messageList}
+        contentContainerStyle={styles.messageListContent}
+        
+      />
+      <View style={styles.inputContainer}>
         <TextInput
-          onFocus={() => {
-            const ref_typing = ref_la_disc.child(currentid + "isTyping");
-            ref_typing.set("true");
-          }}
-          onBlur={() => {
-            const ref_typing = ref_la_disc.child(currentid + "isTyping");
-            ref_typing.set("false");
-          }}
-          onChangeText={(ch) => {
-            setMsg(ch);
-          }}
-          textColor="white"
-          style={{
-            margin: 5,
-            width: "80%",
-            height: 50,
-            backgroundColor: "#0008",
-            fontSize: 14,
-            fontWeight: "bold",
-          }}
+          onChangeText={(ch) => setMsg(ch)}
+          placeholder="Your message"
+          style={styles.textInput}
+          value={msg}
         />
-        <Button
-          onPress={() => {
-            const key = ref_la_disc.push().key;
-            const ref_un_msg = ref_la_disc.child(key);
-            ref_un_msg.set({
-              Time: new Date().toLocaleString(),
-              Message: msg,
-              Sender: currentid,
-              Receiver: secondid,
-            });
-          }}
-          textColor="white"
-          style={{
-            margin: 5,
-            justifyContent: "center",
-            backgroundColor: "#22f9",
-          }}
-        >
+        <Button mode="contained" onPress={sendMessage} style={styles.sendButton}>
           Send
         </Button>
       </View>
-      {istypingVisible && <Text>istyping ...</Text>}
-      <FlatList
-        data={data}
-        renderItem={({ item }) => {
-          if (currentid === item.Sender)
-            return (
-              <View style={{ backgroundColor: "#0f04", margin: 5, alignItems: 'flex-end', }}>
-                <Text>{item.Message}</Text>
-                <Text>{item.Time}</Text>
-              </View>
-            );
-          else
-            return (
-              <View style={{
-                backgroundColor: '#0f04',
-                margin: 5,
-                alignItems: "flex-start",
-              }}>
-                <Text>{item.Message}</Text>
-                <Text>{item.Time}</Text>
-              </View>
-            )
-        }}
-        style={{ margin: 5 }}
-      />
     </ImageBackground>
   );
 }
@@ -123,6 +87,54 @@ export default function Chat(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    flexDirection: "column-reverse",
+    justifyContent: "center",
+    paddingHorizontal: 20,
+  },
+  messageContainer: {
+    maxWidth: "80%",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 10,
+  },
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#22f9",
+  },
+  otherMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#ddd",
+  },
+  messageText: {
+    fontSize: 16,
+    color: "#fff",
+  },
+  messageTime: {
+    fontSize: 12,
+    color: "#ccc",
+    marginTop: 5,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 20,
+  },
+  textInput: {
+    flex: 1,
+    marginRight: 10,
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+  },
+  sendButton: {
+    borderRadius: 20,
+  },
+  messageList: {
+    flex: 1,
+  },
+  messageListContent: {
+    flexGrow: 1,
+    justifyContent: "flex-end",
+  
+   
   },
 });

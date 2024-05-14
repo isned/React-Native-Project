@@ -7,7 +7,7 @@ export default function Authentification(props) {
     //const  refinput2 = useRef();
   return (
     <ImageBackground 
-    source={require("../assets/imageback1.jpg")}
+    source={require("../assets/backnew.jpg")}
     style={styles.container}>
       <View 
       style={{
@@ -20,13 +20,13 @@ export default function Authentification(props) {
       borderColor:"white",
       borderWidth:2,
       }}>
-      <Text style={{backgroundColor:"red",
+      <Text style={{
       fontSize:34,
       fontStyle:"italic",
       fontWeight:"bold",
       color:"white",
       borderRadius:5,
-    }}>BienVenue 
+    }}>Welcome
      </Text>
      
     <TextInput 
@@ -73,12 +73,12 @@ export default function Authentification(props) {
 
       
     }}
-    title='Se Connecter'></Button>
+    title='Login'></Button>
     <Button 
     onPress={()=>{
         BackHandler.exitApp();//fermer l'application
     }}
-    title='Annuler'></Button>
+    title='Cancel'></Button>
     </View>
     <TouchableOpacity style={{
       paddingRight:10,
@@ -90,7 +90,7 @@ export default function Authentification(props) {
      onPress={()=>{
       props.navigation.navigate("newuser");
      }}
-     style={{width:"100%",textAlign:"right",marginRight:20,color:"white",marginTop:15}}>Créer un nouveau compte</Text>
+     style={{width:"100%",textAlign:"right",marginRight:20,color:"white",marginTop:15}}>create an account</Text>
 
     </TouchableOpacity >
     </View> 

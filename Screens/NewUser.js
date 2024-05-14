@@ -11,7 +11,7 @@ export default function NewUser(props) {
 
   return (
     <ImageBackground 
-    source={require("../assets/imageback1.jpg")}
+    source={require("../assets/backnew.jpg")}
     style={styles.container}>
       <View 
       style={{
@@ -24,19 +24,19 @@ export default function NewUser(props) {
       borderColor:"white",
       borderWidth:2,
       }}>
-      <Text style={{backgroundColor:"red",
+      <Text style={{
       fontSize:34,
       fontStyle:"italic",
       fontWeight:"bold",
       color:"white",
       borderRadius:5,
-    }}>Nouveau utilisateur
+    }}>New User
      </Text>
      
     <TextInput 
     onChangeText={(ch)=>{email=ch;}}
     keyboardType='email-address'
-    placeholder='email'
+    placeholder='Email'
      style={styles.inputstyle}
      ></TextInput>
     <TextInput
@@ -71,13 +71,13 @@ export default function NewUser(props) {
        
        
     }}
-    title="S'inscrire"></Button>
+    title="SignIn"></Button>
     <Button 
     onPress={()=>{
        
         props.navigation.goBack();
     }}
-    title='Retour'></Button>
+    title='Back'></Button>
     </View>
     </View> 
     <StatusBar style="auto" />

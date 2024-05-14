@@ -76,7 +76,7 @@ export default function MyProfil(props) {
   
   return (
     <ImageBackground
-      source={require("../../assets/image1.jpg")}
+      source={require("../../assets/back.jpg")}
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -101,7 +101,7 @@ export default function MyProfil(props) {
         }}
         textAlign="center"
         placeholderTextColor="#0005"
-        placeholder="Nom"
+        placeholder="Name"
         keyboardType="name-phone-pad"
         style={styles.textinputstyle}
       ></TextInput>
@@ -111,7 +111,7 @@ export default function MyProfil(props) {
         }}
         textAlign="center"
         placeholderTextColor="#0005"
-        placeholder="Prenom"
+        placeholder="Lastname"
         keyboardType="name-phone-pad"
         style={styles.textinputstyle}
       ></TextInput>
@@ -121,7 +121,7 @@ export default function MyProfil(props) {
         }}
         placeholderTextColor="#0005"
         textAlign="center"
-        placeholder="Telephone"
+        placeholder="Phone"
         keyboardType="phone-pad"
         style={styles.textinputstyle}
       ></TextInput>
@@ -152,7 +152,7 @@ export default function MyProfil(props) {
             Id:currentid
           })
           .then(()=>{
-            alert("ajout avec succées")
+            alert("Add successfully")
           })
           .catch(()=>{
             alert("erreur")
